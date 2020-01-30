@@ -19,6 +19,9 @@ int main(void)
 {
 	GLFWwindow* m_Window;
 
+	int width = 960;
+	int height = 540;
+
 	//Initialize the library
 	if (!glfwInit())
 		throw std::exception();
@@ -28,7 +31,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//Create a window in window mode with an OpenGL context
-	m_Window = glfwCreateWindow(1120, 700, "Modern OpenGL Learning", NULL, NULL);
+	m_Window = glfwCreateWindow(width, height, "Modern OpenGL Learning", NULL, NULL);
 
 	if (!m_Window)
 	{
@@ -57,10 +60,10 @@ int main(void)
 
 	float pos[]
 	{
-		-0.5f, -0.5f, 0.0f, 0.0f,
-		0.5f, -0.5f, 1.0f, 0.0f,
-		0.5f, 0.5f, 1.0f, 1.0f,
-		-0.5f, 0.5f, 0.0f, 1.0f
+		100.0f, 100.0f, 0.0f, 0.0f,
+		200.0f, 100.0f, 1.0f, 0.0f,
+		200.0f, 200.0f, 1.0f, 1.0f,
+		100.0f, 200.0f, 0.0f, 1.0f
 	};
 
 	GLuint indices[] =
@@ -82,12 +85,16 @@ int main(void)
 	
 	std::shared_ptr<cIndexBuffer> index = std::make_shared<cIndexBuffer>(indices, sizeof(indices));
 
-	glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //Aspec ratio for the 2D images
+	glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height, -1.0f, 1.0f); //Aspec ratio for the 2D images
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 0.0f, 0.0f)); //Create view
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 0.0f)); //Model matrix
+
+	glm::mat4 MVP = projection * view * model; //The model, view projection matrix
 
 	std::shared_ptr<cShaderProgram> shader = std::make_shared<cShaderProgram>("../assets/shaders/Shader.glsl");
 	shader->Bind();
 	//shader->setUniform("u_Colour", 0.8, 0.4f, 0.7f, 1.0f);
-	shader->setUniform("u_Projection", projection);
+	shader->setUniform("u_Projection", MVP); //Projection view for the window
 
 	std::shared_ptr<cTexture> texture = std::make_shared<cTexture>("../assets/textures/RDmeme.jpg");
 	texture->Bind();
